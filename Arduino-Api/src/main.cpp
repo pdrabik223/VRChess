@@ -1,36 +1,19 @@
-#include <FastLED.h>
-
-// How many leds in your strip?
-#define NUM_LEDS 3
-#define DATA_PIN 5
-
-// Define the array of leds
-CRGB leds[NUM_LEDS];
-
+#include "LedStrip.h"
+// provided led strip has 300 leds
+LedStrip<5> led_strip(300);
 void setup()
 {
-  FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS); // GRB ordering is assumed
+  led_strip.Clear();
 }
 
 void loop()
 {
-  leds[0] = CRGB::AliceBlue;
-  FastLED.show();
-  delay(500);
-  leds[0] = CRGB::Black;
-  FastLED.show();
-  delay(500);
-  leds[1] = CRGB::AliceBlue;
-  FastLED.show();
-  delay(500);
-  leds[1] = CRGB::Black;
-  FastLED.show();
-  delay(500);
-
-  leds[2] = CRGB::AliceBlue;
-  FastLED.show();
-  delay(500);
-  leds[2] = CRGB::Black;
-  FastLED.show();
-  delay(500);
+  for (uint32_t i = 0; i < led_strip.GetNoLeds() - 30; i++)
+  {
+    led_strip.Clear();
+    for (uint32_t j = 0; j < 30; j++)
+      led_strip.Set(i + j, Rainbow(j, 30));
+    led_strip.Update();
+    delay(100);
+  }
 }
