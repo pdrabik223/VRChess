@@ -1,9 +1,6 @@
 
 
 from dataclasses import dataclass
-from pickle import NONE
-from turtle import pos
-
 import serial
 from typing import List, Tuple
 from numpy import uint16, uint8
@@ -14,6 +11,7 @@ class RGB:
     r: uint8
     g: uint8
     b: uint8
+# Todo more colors
 
     @staticmethod
     def red() -> RGB:
