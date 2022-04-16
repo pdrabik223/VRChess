@@ -32,8 +32,24 @@ class TestBoard(unittest.TestCase):
         for x,y in invalid_test_cases:
             self.assertRaises(Exception,board.conv_1_d((x,y)))
                  
-                 
+class TestRGB(unittest.TestCase):
+    def test_str(self):
+        color = RGB(r=255,g=0,b=0)
+        self.assertEqual(color.__str__(),"ff0000")
 
+        color = RGB(r=0,g=0,b=0)
+        self.assertEqual(color.__str__(),"000000")
+       
+        color = RGB(15, 212, 31)
+        self.assertEqual(color.__str__(),"0fd41f")
+        
+        color = RGB(110, 54, 74)
+        self.assertEqual(color.__str__(),"6e364a")
+        
+        color = RGB(13, 9, 11)
+        self.assertEqual(color.__str__(),"0d090b")
+        
+        
 if __name__ == '__main__':
     unittest.main()
     
