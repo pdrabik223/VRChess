@@ -51,6 +51,17 @@ class Board:
 
     @staticmethod
     def using_serial_on_port(port: str, baudrate=115200):
+        """
+        creates board object connected to arduino board via specified port
+        
+        Args:
+            port (str): COM port id to connect on e.g. "COM3"
+            baudrate (int, optional): connection baudrate Defaults to 115200.
+
+        Returns:
+            Board: connected board object
+        """
+        
         return Board(serial.Serial(port=port, baudrate=baudrate))
 
     def display() -> None:
@@ -67,16 +78,41 @@ class Board:
         pass
 
     def __getitem__(self, position: Tuple[uint8, uint8]) -> Tuple[RGB, bool]:
+        """getter for state of specied square 
+
+        Args:
+            position (Tuple[uint8, uint8]): position in question
+
+        Returns:
+            Tuple[RGB, bool]: color and occupation of square (in that order) 
+        """
         position_1_d = self.conv_1_d(position)
         return (self.__led_strip[position_1_d], self.__buttons[position_1_d])
 
     def __setitem__(self, position: Tuple[uint8, uint8], color: RGB) -> None:
+        """settor for specied square color 
+
+        Args:
+            position (Tuple[uint8, uint8]): position of square in question
+            color (RGB): new collor of square
+        """
         position_1_d = self.conv_1_d(position)
         self.__led_strip[position_1_d] = color
 
     
     def conv_1_d(self, position_2_d: Tuple[uint8, uint8]) -> uint16:
+        """
+        convert point in 2 dimension space to point in one dimension space
 
+        Args:
+            position_2_d (Tuple[uint8, uint8]): pair of values (length in x dimension, length in y dimension )
+
+        Raises:
+            Exception: Incorrect position, passed value is incorrect
+
+        Returns:
+            uint16: point in one dimension space
+        """
         if position_2_d[0] > self.BOARD_HEIGHT or position_2_d[1] > self.BOARD_WIDTH:
             raise Exception("Incorrect position")
 
