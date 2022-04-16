@@ -8,28 +8,25 @@ from numpy import uint16, uint8
 
 @dataclass
 class RGB:
+    """
+        Helper class for descrying color
+    """
     r: uint8
     g: uint8
     b: uint8
 # Todo more colors
 
     @staticmethod
-    def red() -> RGB:
+    def red() :
         return RGB(r=255, g=0, b=0)
 
     @staticmethod
-    def blue() -> RGB:
+    def blue() :
         return RGB(r=0, g=0, b=255)
 
     @classmethod
-    def green() -> RGB:
+    def green() :
         return RGB(r=0, g=255, b=0)
-
-
-@dataclass
-class Square:
-    color: RGB
-    occupied: bool
 
 
 class Board:
@@ -69,18 +66,19 @@ class Board:
         """
         pass
 
-    def __getitem__(self, position: Tuple(uint8, uint8)) -> Square:
-        position_1_d = self.__conv_1_d(position)
-        return Square(color=self.__led_strip[position_1_d], occupied=self.__buttons[position_1_d])
+    def __getitem__(self, position: Tuple[uint8, uint8]) -> Tuple[RGB, bool]:
+        position_1_d = self.conv_1_d(position)
+        return (self.__led_strip[position_1_d], self.__buttons[position_1_d])
 
-    def __setitem__(self, position: Tuple(uint8, uint8), color: RGB) -> None:
-        position_1_d = self.__conv_1_d(position)
+    def __setitem__(self, position: Tuple[uint8, uint8], color: RGB) -> None:
+        position_1_d = self.conv_1_d(position)
         self.__led_strip[position_1_d] = color
 
-    @staticmethod
-    def __conv_1_d(self, position_2_d: Tuple(uint8, uint8)) -> uint16:
+    
+    def conv_1_d(self, position_2_d: Tuple[uint8, uint8]) -> uint16:
 
-        if position_2_d[0] > self.__BOARD_HEIGHT or position_2_d[1] > self.__BOARD_WIDTH:
+        if position_2_d[0] > self.BOARD_HEIGHT or position_2_d[1] > self.BOARD_WIDTH:
             raise Exception("Incorrect position")
 
-        return self.__BOARD_HEIGHT*position_2_d[0] + position_2_d[1]
+        return self.BOARD_HEIGHT*position_2_d[0] + position_2_d[1]
+    
