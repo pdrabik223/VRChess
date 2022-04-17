@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 import serial
 from typing import List, Tuple
-from numpy import uint16, uint8
+from numpy import uint16, uint32, uint8
 
 
 @dataclass
@@ -23,9 +23,13 @@ class RGB:
     @staticmethod
     def blue() :
         return RGB(r=0, g=0, b=255)
-
-    @classmethod
-    def green() :
+    
+    @staticmethod
+    def black():
+        return RGB(r=0,g=0,b=0)
+    
+    @staticmethod
+    def green():
         return RGB(r=0, g=255, b=0)
     
     def __str__(self)->str:
@@ -74,7 +78,7 @@ class Board:
         self.arduino = device
 
     @staticmethod
-    def using_serial_on_port(port: str, baudrate=115200):
+    def connect_on_port(port: str, baudrate=115200):
         """
         creates board object connected to arduino board via specified port
         
@@ -87,27 +91,80 @@ class Board:
         """
         
         return Board(serial.Serial(port=port, baudrate=baudrate))
+    
+    def __str__(self)->str:
+        """
+        convert board to str for debug proposes
 
+        Returns:
+            str: converted boar 
+        """
+        output = "\n"
+        for x in range(self.BOARD_HEIGHT):
+            
+            for y in range(self.BOARD_WIDTH):
+                output = " "+ output + str(self.__led_strip[self.conv_1_d((x,y))]) + " "
+            
+            output+='\n'
+            
+            for y in range(self.BOARD_WIDTH):
+                if self.__buttons[self.conv_1_d((x,y))]:
+                    output = output +"  "+"ON"+"   "
+                else:
+                    output = output +"  "+"OFF"+"  "
+            output+='\n'
+            
+        # las character is new line, we don't want that 
+        # so return everything but last character
+        return output[:-1]
     def display(self) -> None:
         """
         Update Arduino chessboard colors with new ones 
         """
-        message = self.generate_led_state()
-        self.arduino.write(bytes(message + "\n", 'utf-8'))
+        if self.arduino is not None:
+            message = self.generate_led_state()
+            self.arduino.write(bytes(message + "\n", 'utf-8'))
 
+    def fill_w_color(self,new_collor:RGB)->None:
+        """
+        overrides every led with specified new_collor
 
+        Args:
+            new_collor (RGB): color to which every led will be converted 
+        """
+        for id, _ in enumerate(self.__led_strip):
+            self.__led_strip[id] = new_collor
+            
     def update_board(self) -> None:
         """
         Update board with reading from Arduino
         """
-        read_square_states = str(self.arduino.readline())
-        parsed_square_states = read_square_states.split(' ')
-        
-        self.__action_number = int(read_square_states[-1])
-        
-        for i in range(self.BOARD_HEIGHT*self.BOARD_WIDTH):
-            self.__buttons[i] = bool(parsed_square_states[i])
-        
+        if self.arduino is not None:
+            read_square_states = str(self.arduino.readline())
+            parsed_square_states = read_square_states.split(' ')
+
+            self.__action_number = int(read_square_states[-1])
+
+            for i in range(self.BOARD_HEIGHT*self.BOARD_WIDTH):
+                self.__buttons[i] = bool(parsed_square_states[i])
+    
+    
+    def __get__(self, instance)->uint32:
+        """
+        current __action_number getter
+   
+        Returns:
+            uint32: __action_number
+        """
+        return self.__action_number
+    
+    def close_connection(self)->None:
+        """
+            close connection to arduino device
+            should be run before closing app
+        """
+        if self.arduino is not None:
+            sself.arduino.close()
 
     def generate_led_state(self)->str:
         state = ""
