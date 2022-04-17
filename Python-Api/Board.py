@@ -148,8 +148,8 @@ class Board:
             for i in range(self.BOARD_HEIGHT*self.BOARD_WIDTH):
                 self.__buttons[i] = bool(parsed_square_states[i])
     
-    
-    def __get__(self, instance)->uint32:
+    @property
+    def action_number(self)->uint32:
         """
         current __action_number getter
    

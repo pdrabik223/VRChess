@@ -1,3 +1,4 @@
+from multiprocessing import set_forkserver_preload
 import unittest
 from board import *
 
@@ -31,7 +32,11 @@ class TestBoard(unittest.TestCase):
         invalid_test_cases = [(-1,0),(0,-1),(8,0),(0,8)]
         for x,y in invalid_test_cases:
             self.assertRaises(Exception,board.conv_1_d((x,y)))
-                 
+            
+    def test_get_action_number(self):
+        board = Board(device = None)
+        self.assertEqual(board.action_number , 0)
+
 class TestRGB(unittest.TestCase):
     def test_str(self):
         color = RGB(r=255,g=0,b=0)
