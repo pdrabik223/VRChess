@@ -117,13 +117,6 @@ class Board:
         # las character is new line, we don't want that 
         # so return everything but last character
         return output[:-1]
-    def display(self) -> None:
-        """
-        Update Arduino chessboard colors with new ones 
-        """
-        if self.arduino is not None:
-            message = self.generate_led_state()
-            self.arduino.write(bytes(message + "\n", 'utf-8'))
 
     def fill_w_color(self,new_collor:RGB)->None:
         """
@@ -134,13 +127,36 @@ class Board:
         """
         for id, _ in enumerate(self.__led_strip):
             self.__led_strip[id] = new_collor
+
+    def __decode_payload(payload:str)->str:
+        # ToDo define errors detected by arduino board and map every with unique flag 
+        """
+        separates and acts on error flags from button state array
+
+        Args:
+            payload (str): _description_
             
+        Returns:
+            str: square states 
+        """
+        
+        return payload
+    def display(self) -> None:
+        """
+        Update Arduino chessboard colors with new ones 
+        """
+        if self.arduino is not None:
+            message = self.generate_led_state()
+            self.arduino.write(bytes(message + "\n", 'utf-8'))
+    
     def update_board(self) -> None:
         """
         Update board with reading from Arduino
         """
         if self.arduino is not None:
-            read_square_states = str(self.arduino.readline())
+            payload = str(self.arduino.readline())
+            read_square_states = self.__decode_payload(payload)
+            
             parsed_square_states = read_square_states.split(' ')
 
             self.__action_number = int(read_square_states[-1])
@@ -164,7 +180,7 @@ class Board:
             should be run before closing app
         """
         if self.arduino is not None:
-            sself.arduino.close()
+            self.arduino.close()
 
     def generate_led_state(self)->str:
         state = ""
