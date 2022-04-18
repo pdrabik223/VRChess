@@ -38,3 +38,13 @@ CRGB Rainbow(unsigned id, unsigned max_id)
 
     return CRGB::Red;
 }
+bool IsEqual(const CRGB &color_a, const CRGB &color_b)
+{
+    if (color_a.r != color_b.r)
+        return false;
+    if (color_a.g != color_b.g)
+        return false;
+    if (color_a.b != color_b.b)
+        return false;
+    return true;
+}
