@@ -42,9 +42,9 @@ Board detects user input by measuring piece placement using specially designed m
 Boards main feature is RGB backlight under each square, enabling output communication. This backlight is controlled with python script, thus acts as very low quality 64x64 led display, with around 23ms refresh rate.
 
 # List of parts:
-1. 96, 2mm high, 7mm diameter magnets, 32 for pieces, 64 for squares
+1. 96, 2mm high, 7mm diameter magnets, 32 for pieces, 64 for squares 
 2. 64, 7mm outer-diameter, 2mm inner-diameter 1mm high spacers 
-2. 64 non flashy leds rated for 5v current
+2. 64 straightening diodes rated for 5v current
 3. around 2 meters of 1.6mm diameter soldering wire, for connectors
 4. 64 led long addressable led strip (each individual led will be cut from strip and re-soldered with connections because money limitations, and we're masochists), can come in pieces
 5. soldering wire for led-2-led connections and board-2-arduino connectors
