@@ -26,12 +26,14 @@ Connect board of your choice to your PC via USB port.
 2. Connect all hardware components to your board, for this step use provided guide
 3. Open Arduino-Api via Platform IO "open project" option, 
     located on the main screen, prompt will pop-up with board selection, chose yours.
-    Note thet library is written for Arduino Leonardo board in mind. 
+    
+    Note that library is written for Arduino Leonardo board in mind. 
 4. Compile and Write program to your board
 
 ## III Determine connection port
-while your board is connected to PC via USB port
-    For windows:  go to settings/devices and search for your board, determine on witch "COM" port it's connected. In `Python-Api/ main` file , update port variable with previously determined one.
+While your board is connected to PC via USB port
+    
+For windows:  go to settings/devices and search for your board, determine on witch "COM" port it's connected. In `Python-Api/ main` file , update port variable with previously determined one.
  
 # User action detection
 Board detects user input by measuring piece placement using specially designed magnetic buttons, thus require usage of special pieces, to witch files can be found [here](not yet linked). All information collected by board is passed to PC and interpreted by provided python Api, than  detected "button" presses are analyzed and interpreted as user piece movement. In a way chessboard acts as glorified keyboard, that can only be touched with special magnetic pieces.  
@@ -41,6 +43,7 @@ Boards main feature is RGB backlight under each square, enabling output communic
 
 # List of parts:
 1. 96, 2mm high, 7mm diameter magnets, 32 for pieces, 64 for squares
+2. 64, 7mm outer-diameter, 2mm inner-diameter 1mm high spacers 
 2. 64 non flashy leds rated for 5v current
 3. around 2 meters of 1.6mm diameter soldering wire, for connectors
 4. 64 led long addressable led strip (each individual led will be cut from strip and re-soldered with connections because money limitations, and we're masochists), can come in pieces
