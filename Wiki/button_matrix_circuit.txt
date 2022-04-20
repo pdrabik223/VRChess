@@ -146,7 +146,7 @@ s -288 192 -256 192 0 1 false
 s -32 192 0 192 0 1 false
 s -112 192 -80 192 0 0 false
 s -112 144 -80 144 0 0 false
-s -32 144 0 144 0 0 false
+s -32 144 0 144 0 1 false
 s -288 144 -256 144 0 1 false
 s -208 144 -176 144 0 0 false
 s -112 96 -80 96 0 0 false
@@ -154,7 +154,7 @@ s -32 96 0 96 0 0 false
 s -288 96 -256 96 0 0 false
 s -208 96 -176 96 0 1 false
 s -112 48 -80 48 0 1 false
-s -32 48 0 48 0 0 false
+s -32 48 0 48 0 1 false
 s -208 48 -176 48 0 1 false
 s -288 48 -256 48 0 0 false
 162 -288 288 -288 240 2 default-led 1 0 0 0.01
@@ -175,7 +175,7 @@ s -288 -96 -256 -96 0 1 false
 s -32 -96 0 -96 0 0 false
 s -112 -96 -80 -96 0 0 false
 s -112 -48 -80 -48 0 0 false
-s -32 -48 0 -48 0 1 false
+s -32 -48 0 -48 0 0 false
 s -288 -48 -256 -48 0 1 false
 s -208 -48 -176 -48 0 1 false
 d -256 -192 -256 -176 2 default
@@ -309,4 +309,19 @@ w -208 0 -208 48 0
 w -288 0 -288 48 0
 w 448 -32 448 64 0
 w 448 320 416 320 0
-403 496 304 624 368 0 9_64_0_4099_1.25_0.003125_-1_2_9_3
+x -183 361 274 364 4 24 Switches\sabove\sare\spart\sof\ssweeper\scircuit,
+x -173 395 271 398 4 24 sweeper\senables\sonly\sone\spath\sat\sa\stime\s\s
+x -165 432 263 435 4 24 In\sa\ssingle\scycle\ssweeps\sover\severy\sline\s
+x -285 466 432 469 4 24 enabling\sit\sfor\sa\scertain\samount\sof\stime,\sthan\smoves\sto\sthe\snext\sone\s
+423 -344 -309 -250 -188 0
+423 -359 -105 -281 -192 0
+x -571 -327 -70 -324 4 24 Straightening\sdiode,\sprevents\s"loop\sgeneration"
+x -436 -65 -311 -62 4 24 Button\sitself
+423 -365 113 -287 26 0
+x -461 151 -349 154 4 24 Power\sline
+423 375 -178 453 -265 0
+x 340 -276 442 -273 4 24 Data\sLine
+423 490 -98 488 215 0
+x 469 246 753 249 4 24 Height\sof\sthe\sButton\sMatrix
+423 -224 -240 359 -240 0
+x -71 -261 205 -258 4 24 Width\sof\sthe\sButton\sMatrix
