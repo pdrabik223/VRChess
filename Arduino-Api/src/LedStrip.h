@@ -34,13 +34,14 @@ public:
     {
         leds[position] = color;
     }
+
     /// [] operator, gives direct acces to specified led
     /// @param position id of adressed led
     /// @returns direct acces to led under the given position
-    CRGB &operator[](uint32_t position)
+    CRGB &operator[](const uint32_t position)
     {
-        if (position < this->Size())
-            return leds[position]
+        assert(position < Size());
+        return leds[position];
     }
     /// forces led strip to update it's colors
     void Update()
@@ -59,9 +60,9 @@ public:
     {
         Fill(CRGB::Black);
     }
-    /// @return number of individually adressed leds
-    ///     stv library in every list-like class,
-    ///     uses "size" function to acces length of list,
+    /// @return number of individually adressed leds,
+    ///     in std library every list-like class,
+    ///     uses "size" function to acces length of list
     uint32_t Size() { return GetNoLeds(); }
     /// @return led strip connector pin
     uint8_t GetPin() { return pin; }
