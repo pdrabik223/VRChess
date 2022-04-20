@@ -56,8 +56,8 @@ class RGB:
 class Board:
     __led_strip: List[RGB] = []
     __buttons: List[bool] = []
-    BOARD_WIDTH: uint16 = 8
-    BOARD_HEIGHT: uint16 = 8
+    BOARD_WIDTH: uint16 = 2
+    BOARD_HEIGHT: uint16 = 2
     __action_number = 0 
 
     def __init__(self, device: serial.Serial) -> None:
@@ -156,19 +156,23 @@ class Board:
         
         if self.arduino is not None:
             self.arduino.write(bytes("get_button_matrix\n", 'utf-8'))
+            print( "message send\n")
             
             payload = str(self.arduino.readline())
             
-            print("payload :"+ payload +"\n")
-            
-            read_square_states = self.__decode_payload(payload)
+            read_square_states = payload[2:-3]#self.__decode_payload(payload[:-1])
             
             parsed_square_states = read_square_states.split(' ')
 
             self.__action_number = int(read_square_states[-1])
 
             for i in range(self.BOARD_HEIGHT*self.BOARD_WIDTH):
-                self.__buttons[i] = bool(parsed_square_states[i])
+                if parsed_square_states[i] == '1':
+                    self.__buttons[i] = True
+                elif parsed_square_states[i] == '0':
+                    self.__buttons[i] = False
+                else:
+                    raise Exception("invalid character :>" +str(parsed_square_states[i])+"<")
     
     @property
     def action_number(self)->uint32:

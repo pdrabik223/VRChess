@@ -36,20 +36,22 @@ ButtonMatrix button_matrix((uint32_t)2, (uint32_t)2, &power_pins_array[0], &data
 void setup()
 {
   button_matrix.Setup();
+  Serial.begin(115200);
 }
 
 void loop()
 {
-
+  int i = 0;
   String message = Serial.readStringUntil('\n');
   button_matrix.Scan();
   String answer = "";
+  // Serial.write('\n');
 
   for (uint32_t h = 0; h < button_matrix.GetHeight(); h++)
     for (uint32_t w = 0; w < button_matrix.GetWidth(); w++)
       answer += String(button_matrix.GetState(h, w)) + ' ';
 
-  answer += String(0);
+  answer += String(i++);
   Serial.write(answer.c_str());
   Serial.write('\n');
 }

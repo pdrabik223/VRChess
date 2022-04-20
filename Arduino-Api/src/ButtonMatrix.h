@@ -80,7 +80,7 @@ public:
             SetStripState(w, PinState::High);
             ReadStripState(w);
         }
-        button_matrix[3] = true;
+        // button_matrix[3] = true;
     }
 
     bool GetState(const uint32_t w, const uint32_t h)
@@ -115,7 +115,7 @@ private:
                 debouncer_array[h] += digitalRead(data_pins_array[Conv1d(w, h)]);
 
         for (uint32_t h = 0; h < height; h++)
-            if (float(debouncer_array[h]) / no_debouncer_measurements > 0.5)
+            if (float(debouncer_array[h]) / no_debouncer_measurements > 0.4)
                 button_matrix[Conv1d(w, h)] = true;
             else
                 button_matrix[Conv1d(w, h)] = false;

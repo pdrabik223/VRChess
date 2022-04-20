@@ -28,5 +28,5 @@ def button_matrix_example()->None:
         time.sleep(1)
             
 if __name__ == "__main__":
-    led_example()
-    # button_matrix_example()
+    # led_example()
+    button_matrix_example()
