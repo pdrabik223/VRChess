@@ -56,8 +56,8 @@ class RGB:
 class Board:
     __led_strip: List[RGB] = []
     __buttons: List[bool] = []
-    BOARD_WIDTH: uint16 = 2
-    BOARD_HEIGHT: uint16 = 2
+    BOARD_WIDTH: uint16 = 8
+    BOARD_HEIGHT: uint16 = 8
     __action_number = 0 
 
     def __init__(self, device: serial.Serial) -> None:
