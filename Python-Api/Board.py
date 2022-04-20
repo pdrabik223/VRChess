@@ -56,8 +56,8 @@ class RGB:
 class Board:
     __led_strip: List[RGB] = []
     __buttons: List[bool] = []
-    BOARD_WIDTH: uint16 = 8
-    BOARD_HEIGHT: uint16 = 8
+    BOARD_WIDTH: uint16 = 2
+    BOARD_HEIGHT: uint16 = 2
     __action_number = 0 
 
     def __init__(self, device: serial.Serial) -> None:
@@ -153,8 +153,14 @@ class Board:
         """
         Update board with reading from Arduino
         """
+        
         if self.arduino is not None:
+            self.arduino.write(bytes("get_button_matrix\n", 'utf-8'))
+            
             payload = str(self.arduino.readline())
+            
+            print("payload :"+ payload +"\n")
+            
             read_square_states = self.__decode_payload(payload)
             
             parsed_square_states = read_square_states.split(' ')

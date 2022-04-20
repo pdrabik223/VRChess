@@ -1,9 +1,9 @@
 """ connection example file
 
 """
-from asyncio import sleep
-from board import *
-def main()->None:
+from Board import *
+import time
+def led_example()->None:
     board = Board(None)
     
     for x in range(8):
@@ -16,9 +16,17 @@ def main()->None:
 
             board.display() # send update to arduino board
             board.update_board() # get current board state from arduino 
-            sleep(1) # wait for second 
+            time.sleep(1) # wait for second 
     
     board.close_connection()
 
+def button_matrix_example()->None:
+    board = Board.connect_on_port("COM3")
+    while(True):
+        board.update_board()
+        print(str(board))
+        time.sleep(1)
+            
 if __name__ == "__main__":
-    main()
+    # led_example()
+    button_matrix_example()
