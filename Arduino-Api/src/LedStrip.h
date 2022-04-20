@@ -1,4 +1,7 @@
+//// Wrapper over FastLED library, simplifies usage and hides
+
 #include <FastLED.h>
+#include <stdint.h> /// for special uint tyoes like uint32_t
 
 template <uint8_t PIN>
 class LedStrip
@@ -68,7 +71,7 @@ public:
 
     /// setter for noumber of addressed leds
     /// @param no_leds new noumber of leds
-    /// @note no_leds does not need to match length of physical led strip 
+    /// @note no_leds does not need to match length of physical led strip
     void SetNoLeds(uint32_t no_leds)
     {
         delete[] leds;
