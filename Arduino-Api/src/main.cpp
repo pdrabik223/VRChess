@@ -66,6 +66,14 @@ void loop()
 LedStrip<5> led_strip(4);
 CRGB ParseColor(String color_str);
 
+#include "ButtonMatrix.h"
+#include <String.h>
+
+uint8_t power_pins_array[] = {13, 12};
+uint8_t data_pins_array[] = {A0};
+
+ButtonMatrix button_matrix((uint32_t)2, (uint32_t)2, &power_pins_array[0], &data_pins_array[0]);
+
 uint32_t HandleChar(const char c);
 uint32_t ToDecimal(const String &color_str);
 
@@ -98,12 +106,18 @@ void loop()
     }
     else if (message.substring(0, 3) == "get")
     {
+
       // set board state
       message.remove(0, 3);
       Serial.print(0);
       Serial.print('\n');
     }
     // Serial.print('\n');
+  }
+  else
+  {
+
+    button_matrix.Scan();
   }
   // Serial.print("ok\n");
 }
