@@ -76,9 +76,17 @@ class Board:
         for _ in range(self.BOARD_HEIGHT * self.BOARD_WIDTH):
             self.__buttons.append(False)
         self.arduino = device
-
+        
+        arduino_setup = ""
+        # todo async clock that will terminate connecting after 30s
+        print("connecting...")
+        while(arduino_setup.find("ready") == -1):
+            arduino_setup = str(self.arduino.readline())
+            print(arduino_setup)
+        print("connection ready\n")
+        
     @staticmethod
-    def connect_on_port(port: str, baudrate=115200):
+    def connect_on_port(port: str, baudrate=115200, timeout = 30):
         """
         creates board object connected to arduino board via specified port
         
@@ -90,7 +98,7 @@ class Board:
             Board: connected board object
         """
         
-        return Board(serial.Serial(port=port, baudrate=baudrate))
+        return Board(serial.Serial(port=port, baudrate=baudrate,timeout=timeout))
     
     def __str__(self)->str:
         """
@@ -147,15 +155,16 @@ class Board:
         """
         if self.arduino is not None:
             message = self.generate_led_state()
-            self.arduino.write(bytes(message + "\n", 'utf-8'))
-    
+            self.arduino.write(bytes("set" + message + "\n", 'utf-8'))
+            result = str(self.arduino.readline())
+            print(result)
     def update_board(self) -> None:
         """
         Update board with reading from Arduino
         """
         
         if self.arduino is not None:
-            self.arduino.write(bytes("get_button_matrix\n", 'utf-8'))
+            self.arduino.write(bytes("get\n", 'utf-8'))
             print( "message send\n")
             
             payload = str(self.arduino.readline())
