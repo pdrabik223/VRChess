@@ -80,6 +80,17 @@ public:
         leds = new CRGB[no_leds];
         FastLED.addLeds<NEOPIXEL, PIN>(leds, no_leds); // GRB ordering is assumed
     }
+
+    void TurnRainbowOnAnimation(uint32_t animation_speed)
+    {
+        Clear();
+        for (uint32_t j = 0; j < Size(); j++)
+        {
+            Set(j, Rainbow(j, Size() + 1));
+            Update();
+            delay(animation_speed);
+        }
+    }
 };
 /// calculates color present in id point on the rainbow scale <0 to max_id>
 CRGB Rainbow(unsigned id, unsigned max_id);

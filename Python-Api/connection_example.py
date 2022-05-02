@@ -28,11 +28,22 @@ def button_matrix_example()->None:
         time.sleep(1)
     
     
-def serial_monitor(port:str,baudrate=9600)->None:
-    arduino = serial.Serial(port=port, baudrate=baudrate)
+def serial_monitor(port:str,baudrate=115200)->None:
+    arduino = serial.Serial(port=port, baudrate=baudrate,timeout = 30)
+    arduino_setup = ''
+    print("connecting...")
+    while(arduino_setup.find("ready") == -1):
+        arduino_setup = str(arduino.readline())
+        print(arduino_setup)
+    print("connection ready\n")
+    
     while(True):
+        arduino.write(bytes("ok\n", 'utf-8'))
         payload = str(arduino.readline())
         print(payload)
+        
+        
+        
 def led_connection(port:str)->None:    
     board = Board.connect_on_port(port)
     while(True):
@@ -50,6 +61,6 @@ def led_connection(port:str)->None:
 if __name__ == "__main__":
     # led_example()
     # button_matrix_example()
-    # serial_monitor("COM3")
-    led_connection("COM3")
+    serial_monitor("COM3")
+    # led_connection("COM3")
     

@@ -75,7 +75,7 @@ class Board:
             
         for _ in range(self.BOARD_HEIGHT * self.BOARD_WIDTH):
             self.__buttons.append(False)
-        self.arduino = device
+        self.arduino = serial.Serial("COM3",115200,30)
         
         arduino_setup = ""
         # todo async clock that will terminate connecting after 30s

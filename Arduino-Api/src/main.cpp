@@ -1,65 +1,61 @@
 // Led strip example
-/*
-#include "LedStrip.h"
 
-LedStrip<5> led_strip(4);
+// #include "LedStrip.h"
 
-void setup()
-{
-  led_strip.Clear();
+// LedStrip<5> led_strip(8);
 
-  for (uint32_t j = 0; j < led_strip.Size(); j++)
-    led_strip.Set(j, CRGB::Red);
-  led_strip.Update();
-}
+// void setup()
+// {
+//   led_strip.Clear();
 
-void loop()
-{
-  delay(1000);
-}
+//   for (uint32_t j = 0; j < led_strip.Size(); j++)
+//     led_strip.Set(j, CRGB::Beige);
+//   led_strip.Update();
+// }
 
-
-
+// void loop()
+// {
+//   delay(1000);
+// }
 
 // Button matrix example
 #include "ButtonMatrix.h"
 #include <String.h>
+#include "LedStrip.h"
 
-// uint8_t power_pins_array[] = {13, 12};
-// uint8_t data_pins_array[] = {7, 8};
+LedStrip<11> led_strip(8);
 
-// ButtonMatrix button_matrix((uint32_t)2, (uint32_t)2, &power_pins_array[0], &data_pins_array[0]);
-int buttonPin = A0;
+uint8_t power_pins_array[] = {2, 4};
+ButtonMatrix button_matrix((uint32_t)2, (uint32_t)2, &power_pins_array[0], A0);
 void setup()
 {
-  // button_matrix.Setup();
-  Serial.begin(9600);
-  // pinMode(3, OUTPUT);
-  // pinMode(4, INPUT);
+
+  led_strip.TurnRainbowOnAnimation(100);
+
+  button_matrix.Setup();
+  Serial.begin(115200);
+  Serial.write("ready\n");
 }
 void loop()
 {
-  // int i = 0;
+  String message = Serial.readStringUntil('\n');
 
-  // String message = Serial.readStringUntil('\n');
-  // button_matrix.Scan();
-  // String answer = "";
-  // Serial.write('\n');
+  String answer = "0: " + button_matrix.power_pins_array[0];
+  answer += " ";
+  button_matrix.SetStripState(0, HIGH);
+  answer += button_matrix.Scan();
 
-  // for (uint32_t h = 0; h < button_matrix.GetHeight(); h++)
-  //   for (uint32_t w = 0; w < button_matrix.GetWidth(); w++)
-  //     answer += String(button_matrix.GetState(h, w)) + ' ';
+  answer += "1: " + button_matrix.power_pins_array[1];
+  answer += " ";
+  button_matrix.SetStripState(1, HIGH);
+  answer += button_matrix.Scan();
 
-  // answer += String(i++);
-  // Serial.write(answer.c_str());
-
-  // int sensorValue = analogRead(buttonPin);
-  // float voltage = sensorValue * (5.0 / 1023.0);
-  // Serial.println(voltage);
-  // delay(100);
+  Serial.write(answer.c_str());
+  Serial.write('\n');
+  delay(100);
 }
 
-*/
+/*
 #include <Arduino.h>
 #include <String.h>
 #include "LedStrip.h"
@@ -174,3 +170,4 @@ uint32_t ToDecimal(const String &color_str)
 
   return num;
 }
+*/
