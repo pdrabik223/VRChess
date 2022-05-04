@@ -3,6 +3,8 @@
 """
 from Board import *
 import time
+
+
 def led_example()->None:
     board = Board(None)
     
@@ -57,10 +59,32 @@ def led_connection(port:str)->None:
                 board.display() # send update to arduino board
                 # board.update_board() # get current board state from arduino 
                 time.sleep(1) # wait for second 
+
+
+
+def full_connection(port:str)->None:
+    board = Board.connect_on_port(port)
+    while(True):
+        for x in range(board.BOARD_HEIGHT):
+            for y in range(board.BOARD_WIDTH):
             
+                print(str(board))
+                
+                board.display() 
+                board.read_voltage() 
+                
+                
+                board.fill_w_color(RGB.green())
+                board[(x,y)] = RGB.red()
+                
+                time.sleep(1) 
+    
+    board.close_connection()
+
 if __name__ == "__main__":
     # led_example()
     # button_matrix_example()
-    serial_monitor("COM3")
+    # serial_monitor("COM3")
     # led_connection("COM3")
+    full_connection("COM3")
     

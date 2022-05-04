@@ -1,6 +1,7 @@
 
 
 from dataclasses import dataclass
+from msilib.schema import Error
 import serial
 from typing import List, Tuple
 from numpy import uint16, uint32, uint8
@@ -75,7 +76,7 @@ class Board:
             
         for _ in range(self.BOARD_HEIGHT * self.BOARD_WIDTH):
             self.__buttons.append(False)
-        self.arduino = serial.Serial("COM3",115200,30)
+        self.arduino = device
         
         arduino_setup = ""
         # todo async clock that will terminate connecting after 30s
@@ -154,10 +155,31 @@ class Board:
         Update Arduino chessboard colors with new ones 
         """
         if self.arduino is not None:
+            
             message = self.generate_led_state()
             self.arduino.write(bytes("set" + message + "\n", 'utf-8'))
             result = str(self.arduino.readline())
-            print(result)
+            
+            if(result.find("ok") == -1):
+                raise Exception(result)
+            
+            
+            
+            
+    def read_voltage(self)->None:
+        if self.arduino is not None:
+            self.arduino.write(bytes("get\n", 'utf-8'))
+   
+        payload = str(self.arduino.readline())
+   
+        if(payload.find("ok") == -1):
+                raise Exception(payload)
+    
+        
+        read_square_states = payload[4:-3] 
+    
+        print(read_square_states,end='\n')
+    
     def update_board(self) -> None:
         """
         Update board with reading from Arduino
@@ -165,7 +187,6 @@ class Board:
         
         if self.arduino is not None:
             self.arduino.write(bytes("get\n", 'utf-8'))
-            print( "message send\n")
             
             payload = str(self.arduino.readline())
             

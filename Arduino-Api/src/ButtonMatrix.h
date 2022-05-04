@@ -6,6 +6,9 @@
 
 #include <Arduino.h>
 
+#ifndef BUTTON_MATRIX_H
+#define BUTTON_MATRIX_H
+
 struct PinState
 {
 
@@ -59,18 +62,18 @@ public:
     void Setup()
     {
         /// SEt up function should be invoked in the "setup()" function
-        for (uint32_t i = 0; i < width; i++)
-            pinMode(power_pins_array[i], OUTPUT);
+        for (uint32_t w = 0; w < width; w++)
+            pinMode(power_pins_array[w], OUTPUT);
     }
     uint32_t Scan()
     {
         /// scans buttons and updates button matrix field with new states
         /// this function might take a while to excute
-        uint32_t voltage = 0;
-        for (uint32_t i = 0; i < no_debouncer_measurements; i++)
-            voltage += analogRead(analog_input_pin);
+        // uint32_t voltage = 0;
+        // for (uint32_t i = 0; i < no_debouncer_measurements; i++)
+        //     voltage += analogRead(analog_input_pin);
 
-        return voltage / no_debouncer_measurements;
+        return analogRead(analog_input_pin);
     }
     void DecodeVoltageMeasurement(uint32_t voltage)
     {
@@ -89,11 +92,11 @@ public:
         return width;
     }
 
-    void SetStripState(const uint32_t w, const uint8_t state)
+    void SetStripStateHigh(const uint32_t w)
     {
         for (uint32_t i = 0; i < width; i++)
-            digitalWrite(power_pins_array[w], PinState::Not(state));
-        digitalWrite(power_pins_array[w], state);
+            digitalWrite(power_pins_array[w], LOW);
+        digitalWrite(power_pins_array[w], HIGH);
     }
     uint32_t ReadStripState(const uint32_t w)
     {
@@ -109,3 +112,5 @@ public:
         return h * width + w;
     }
 };
+
+#endif

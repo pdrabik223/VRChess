@@ -3,6 +3,9 @@
 #include <FastLED.h>
 #include <stdint.h> /// for special uint tyoes like uint32_t
 
+#ifndef LED_STRIP_H
+#define LED_STRIP_H
+
 template <uint8_t PIN>
 class LedStrip
 {
@@ -99,3 +102,5 @@ CRGB Rainbow(unsigned id, unsigned max_id);
 bool IsEqual(const CRGB &color_a, const CRGB &color_b);
 
 // CRGB FromBase16(const string &color)
+
+#endif
