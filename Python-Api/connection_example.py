@@ -74,17 +74,23 @@ def full_connection(port:str)->None:
                 board.read_voltage() 
                 
                 
-                board.fill_w_color(RGB.green())
+                board.fill_w_color(RGB.white())
                 board[(x,y)] = RGB.red()
                 
                 time.sleep(1) 
     
     board.close_connection()
 
+def chess_colors(port:str)->None:
+    board = Board.connect_on_port(port)
+    board.set_chess_colors()
+    board.display() 
+    
 if __name__ == "__main__":
     # led_example()
     # button_matrix_example()
     # serial_monitor("COM3")
     # led_connection("COM3")
     full_connection("COM3")
+    # chess_colors("COM3")
     

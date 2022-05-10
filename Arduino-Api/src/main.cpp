@@ -24,7 +24,7 @@
 #include "LedStrip.h"
 #include "CommandParser.h"
 
-LedStrip<11> led_strip(32);
+LedStrip<11> led_strip(64);
 uint8_t power_pins_array[] = {2, 4};
 ButtonMatrix button_matrix((uint32_t)2, (uint32_t)2, &power_pins_array[0], A0);
 void setup()
@@ -38,8 +38,8 @@ void setup()
 }
 void loop()
 {
-  // String command = Serial.readStringUntil('\n');
-  // Parse(command, led_strip, button_matrix);
+  String command = Serial.readStringUntil('\n');
+  Parse(command, led_strip, button_matrix);
 }
 /*
 #include <Arduino.h>

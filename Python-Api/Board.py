@@ -1,7 +1,6 @@
 
 
 from dataclasses import dataclass
-from msilib.schema import Error
 import serial
 from typing import List, Tuple
 from numpy import uint16, uint32, uint8
@@ -28,7 +27,9 @@ class RGB:
     @staticmethod
     def black():
         return RGB(r=0,g=0,b=0)
-    
+    @staticmethod
+    def white():
+        return RGB(r = 255,g=255,b=255)
     @staticmethod
     def green():
         return RGB(r=0, g=255, b=0)
@@ -55,11 +56,11 @@ class RGB:
         return str_r + str_g + str_b
 
 class Board:
-    __led_strip: List[RGB] = []
-    __buttons: List[bool] = []
-    BOARD_WIDTH: uint16 = 2
-    BOARD_HEIGHT: uint16 = 2
+    BOARD_WIDTH: uint16 = 8
+    BOARD_HEIGHT: uint16 = 8
     __action_number = 0 
+    __squares: List[bool] = []
+    led_strip: List[RGB] = []
 
     def __init__(self, device: serial.Serial) -> None:
         """
@@ -71,21 +72,24 @@ class Board:
         """
         
         for _ in range(self.BOARD_HEIGHT * self.BOARD_WIDTH):
-            self.__led_strip.append(RGB.red())
-            
+            self.led_strip.append(RGB.red())
             
         for _ in range(self.BOARD_HEIGHT * self.BOARD_WIDTH):
-            self.__buttons.append(False)
+            self.__squares.append(False)
         self.arduino = device
+        
+        if device == None:
+            return
         
         arduino_setup = ""
         # todo async clock that will terminate connecting after 30s
+       
         print("connecting...")
         while(arduino_setup.find("ready") == -1):
             arduino_setup = str(self.arduino.readline())
             print(arduino_setup)
         print("connection ready\n")
-        
+     
     @staticmethod
     def connect_on_port(port: str, baudrate=115200, timeout = 30):
         """
@@ -112,12 +116,12 @@ class Board:
         for x in range(self.BOARD_HEIGHT):
             
             for y in range(self.BOARD_WIDTH):
-                output = " "+ output + str(self.__led_strip[self.conv_1_d((x,y))]) + " "
+                output = " "+ output + str(self.led_strip[self.conv_1_d((x,y))]) + " "
             
             output+='\n'
             
             for y in range(self.BOARD_WIDTH):
-                if self.__buttons[self.conv_1_d((x,y))]:
+                if self.__squares[self.conv_1_d((x,y))]:
                     output = output +"  "+"ON"+"   "
                 else:
                     output = output +"  "+"OFF"+"  "
@@ -126,7 +130,16 @@ class Board:
         # las character is new line, we don't want that 
         # so return everything but last character
         return output[:-1]
-
+    
+    def set_chess_colors(self, white_color:RGB = RGB.white,black_color:RGB = RGB.black):
+        flip = True
+        for id in range(self.BOARD_HEIGHT *self.BOARD_WIDTH) :
+            if(flip):
+                self.led_strip[id] = white_color
+            else:
+                self.led_strip[id] = black_color  
+            flip = not flip
+    
     def fill_w_color(self,new_collor:RGB)->None:
         """
         overrides every led with specified new_collor
@@ -134,8 +147,8 @@ class Board:
         Args:
             new_collor (RGB): color to which every led will be converted 
         """
-        for id, _ in enumerate(self.__led_strip):
-            self.__led_strip[id] = new_collor
+        for id, _ in enumerate(self.led_strip):
+            self.led_strip[id] = new_collor
 
     def __decode_payload(payload:str)->str:
         # ToDo define errors detected by arduino board and map every with unique flag 
@@ -198,9 +211,9 @@ class Board:
 
             for i in range(self.BOARD_HEIGHT*self.BOARD_WIDTH):
                 if parsed_square_states[i] == '1':
-                    self.__buttons[i] = True
+                    self.__squares[i] = True
                 elif parsed_square_states[i] == '0':
-                    self.__buttons[i] = False
+                    self.__squares[i] = False
                 else:
                     raise Exception("invalid character :>" +str(parsed_square_states[i])+"<")
     
@@ -224,7 +237,7 @@ class Board:
 
     def generate_led_state(self)->str:
         state = ""
-        for led in self.__led_strip:
+        for led in self.led_strip:
             state += str(led) + ' '
         return state
     
@@ -240,7 +253,7 @@ class Board:
             Tuple[RGB, bool]: color and occupation of square (in that order) 
         """
         position_1_d = self.conv_1_d(position)
-        return (self.__led_strip[position_1_d], self.__buttons[position_1_d])
+        return (self.led_strip[position_1_d], self.__squares[position_1_d])
 
     def __setitem__(self, position: Tuple[uint8, uint8], color: RGB) -> None:
         """settor for specied square color 
@@ -250,7 +263,7 @@ class Board:
             color (RGB): new collor of square
         """
         position_1_d = self.conv_1_d(position)
-        self.__led_strip[position_1_d] = color
+        self.led_strip[position_1_d] = color
 
     
     def conv_1_d(self, position_2_d: Tuple[uint8, uint8]) -> uint16:
