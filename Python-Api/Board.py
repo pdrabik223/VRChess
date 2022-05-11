@@ -133,24 +133,28 @@ class Board:
         return output[:-1]
     
     def set_chess_colors(self, white_color:RGB = RGB.white(), black_color:RGB = RGB.black()):
-        # flip = True
-        # for h in range(self.BOARD_HEIGHT):
-        #     for w in range(self.BOARD_WIDTH):
-        #         if(h%2==0):
-        #             if(w%2==0):
-        #                 self.led_strip[w * 8 + h] = white_color
-        #             else:
-        #                 self.led_strip[w * 8 + h] = black_color
-        #         else:
-        #             if (w%2==1):
-        #                 self.led_strip[w * 8 + h] = white_color
-        #             else:
-        #                 self.led_strip[w * 8 + h] = black_color
-        #
+        flip = True
         for h in range(self.BOARD_HEIGHT):
             for w in range(self.BOARD_WIDTH):
-                self.led_strip[w * 8 + h] = white_color
-                time.sleep(1)
+                if(h%2==0):
+                    if(w%2==0):
+                        self.led_strip[w * 8 + h] = white_color
+                    else:
+                        self.led_strip[w * 8 + h] = black_color
+                else:
+                    if (w%2==1):
+                        self.led_strip[w * 8 + h] = white_color
+                    else:
+                        self.led_strip[w * 8 + h] = black_color
+        
+        
+    def chess_animation(self,white_color:RGB = RGB.white(), black_color:RGB = RGB.black()):
+        for h in range(self.BOARD_HEIGHT):
+            for w in range(self.BOARD_WIDTH):
+                
+                self.led_strip[w * 8 + h] = RGB.white()
+                
+                time.sleep(0.1)
 
                 # flip = not flip
     

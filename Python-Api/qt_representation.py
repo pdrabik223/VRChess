@@ -40,6 +40,13 @@ class BoardWindow():
         self.chess_colors.setStyleSheet(f"background-color : gray")
         self.chess_colors.setText("chess grid")
         self.chess_colors.clicked.connect(self.turn_on_chess)
+  
+        self.chess_colors = QPushButton(self.widget)
+        self.chess_colors.setGeometry(2 + 8 * 82 ,1 * 82, 80, 80)
+        self.chess_colors.setStyleSheet(f"background-color : gray")
+        self.chess_colors.setText("chess grid animation")
+        self.chess_colors.clicked.connect(self.turn_on_chess_animation)
+  
         
         self.board_handle.display()
         self.widget.show()
@@ -81,6 +88,12 @@ class BoardWindow():
         self.board_handle.display()
         self.widget.show()
         
+        
+    def turn_on_chess_animation(self):
+        self.board_handle.set_chess_colors()
+        self.update_qui()
+        self.board_handle.display()
+        self.widget.show()
         
     def cycle_color(self,idClicked):
         
