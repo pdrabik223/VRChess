@@ -21,7 +21,10 @@ class BoardWindow():
         self.widget.setGeometry(80, 80,2+9*82,2+8*82)
         self.widget.setStyleSheet("background-color : black")
         self.widget.setWindowTitle("Board")
-        self.board_handle = Board.connect_on_port(device)
+        if(device == None):
+            self.board_handle = Board(None)
+        else:    
+            self.board_handle = Board.connect_on_port(device)
         self.buttonGroup = QButtonGroup()
         self.buttonGroup.idClicked.connect(self.cycle_color)
         
@@ -119,7 +122,7 @@ def main():
     """
     sync board indefinitely  
     """
-    window = BoardWindow("COM3")
+    window = BoardWindow(None)
         
 
 if __name__ == "__main__":
