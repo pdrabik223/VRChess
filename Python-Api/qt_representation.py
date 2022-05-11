@@ -18,7 +18,7 @@ class BoardWindow():
     def __init__(self,device) -> None:
         self.app = QApplication(sys.argv)
         self.widget = QWidget()
-        self.widget.setGeometry(8 * 80, 8*80,2+9*82,2+8*82)
+        self.widget.setGeometry(80, 80,2+9*82,2+8*82)
         self.widget.setStyleSheet("background-color : black")
         self.widget.setWindowTitle("Board")
         self.board_handle = Board.connect_on_port(device)
