@@ -52,13 +52,15 @@ int HandleLedStripUpdate(String command, LedStrip<PIN> &led_strip_handle)
         // message += " ";
         uint32_t id = i;
 
-        // if (id % 2 == 1)
-        // {
-        //     int x = id / 8;
-        //     int y = id % 8;
-        //     y = 8 - y;
-        //     id = y * 8 + y;
-        // }
+        {
+            int r = id / 8;
+            int c = id % 8;
+
+            if (r % 2 == 1)
+                c = 7 - c;
+
+            id = r * 8 + c;
+        }
         led_strip_handle.Set(id, color);
     }
 
