@@ -29,7 +29,7 @@ uint8_t power_pins_array[] = {2, 4};
 ButtonMatrix button_matrix((uint32_t)2, (uint32_t)2, &power_pins_array[0], A0);
 void setup()
 {
-  led_strip.TurnRainbowOnAnimation(100);
+  led_strip.TurnRainbowOnAnimation(50);
   led_strip.Fill(CRGB::Green);
   led_strip.Update();
   button_matrix.Setup();

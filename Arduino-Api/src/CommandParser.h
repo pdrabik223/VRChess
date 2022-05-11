@@ -37,15 +37,33 @@ int HandleLedStripUpdate(String command, LedStrip<PIN> &led_strip_handle)
 {
     command.remove(0, 3);
     led_strip_handle.Clear();
+    String message = "";
     for (uint32_t i = 0; i < led_strip_handle.Size(); i++)
     {
         String color_str = command.substring(i * 7, i * 7 + 6);
+        // message += color_str;
+        // message += " ";
         CRGB color = ParseColor(color_str);
-        led_strip_handle.Set(i, color);
+        // message += String((int)color[0]);
+        // message += " ";
+        // message += color.g;
+        // message += " ";
+        // message += color.g;
+        // message += " ";
+        uint32_t id = i;
+
+        // if (id % 2 == 1)
+        // {
+        //     int x = id / 8;
+        //     int y = id % 8;
+        //     y = 8 - y;
+        //     id = y * 8 + y;
+        // }
+        led_strip_handle.Set(id, color);
     }
 
     led_strip_handle.Update();
-
+    // Serial.write(message.c_str());
     Serial.write("ok");
 
     // Serial.write("GENERAL BUTTON MATRIX ERROR");

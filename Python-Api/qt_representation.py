@@ -18,7 +18,7 @@ class BoardWindow():
     def __init__(self,device) -> None:
         self.app = QApplication(sys.argv)
         self.widget = QWidget()
-        self.widget.setGeometry(8 * 80, 8*80,2+8*82,2+8*82)
+        self.widget.setGeometry(8 * 80, 8*80,2+9*82,2+8*82)
         self.widget.setStyleSheet("background-color : black")
         self.widget.setWindowTitle("Board")
         self.board_handle = Board.connect_on_port(device)
@@ -33,6 +33,13 @@ class BoardWindow():
                 self.buttonGroup.addButton(self.__buttons[-1],x*BOARD_WIDTH+y)
                 self.board_handle[(x,y)] = RGB.red()
                 self.__button_states.append(0)
+                
+                
+        self.chess_colors = QPushButton(self.widget)
+        self.chess_colors.setGeometry(2 + 8 * 82 ,0, 80, 80)
+        self.chess_colors.setStyleSheet(f"background-color : gray")
+        self.chess_colors.setText("chess grid")
+        self.chess_colors.clicked.connect(self.turn_on_chess)
         
         self.board_handle.display()
         self.widget.show()
@@ -67,35 +74,33 @@ class BoardWindow():
             return(math.sin(height_in_radians) * 255, 0,
                     math.cos(height_in_radians) * 255)
 
+
+    def turn_on_chess(self):
+        self.board_handle.set_chess_colors()
+        self.update_qui()
+        self.board_handle.display()
+        self.widget.show()
+        
+        
     def cycle_color(self,idClicked):
         
         self.__button_states[idClicked] += 1
         
-        if self.__button_states[idClicked] == 9:
+        if self.__button_states[idClicked] == 12:
             self.__button_states[idClicked] = 0
         
-        self.board_handle.led_strip[idClicked] = self.rainbow( self.__button_states[idClicked],9)
+        color =  self.rainbow( self.__button_states[idClicked],12)
+        self.board_handle.led_strip[idClicked] = RGB(round(color[0]), round(color[1]), round(color[2]))
         color = self.board_handle.led_strip[idClicked]
-        print(color)
-        self.__buttons[idClicked].setStyleSheet(f"background-color : rgb({color[0]},{color[1]},{color[2]})")
+        print(str(color))
+        self.__buttons[idClicked].setStyleSheet(f"background-color : rgb({color.r},{color.g},{color.b})")
         self.board_handle.display()
         self.widget.show()
         
-        # print("window works")
-
-        # board = self.board_handle
-        # for x in range(8):
-        #    for y in range(8):
-
-        #        print(str(board))
-        #        board.fill_w_color(RGB.green())# clean display with black color
-        #        board[(x,y)] = RGB.red() # update board display
-        #        board.display() # send update to arduino board
-        #        board.update_board() # get current board state from arduino 
-        #        self.update(board.led_strip)
-        #        time.sleep(3) # wait for second 
-
-        # board.close_connection()
+    def update_qui(self):
+        for i in range(BOARD_HEIGHT * BOARD_WIDTH):
+            color = self.board_handle.led_strip[i]
+            self.__buttons[i].setStyleSheet(f"background-color : rgb({color.r},{color.g},{color.b})")
 
 def main():
     """

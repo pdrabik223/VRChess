@@ -131,7 +131,7 @@ class Board:
         # so return everything but last character
         return output[:-1]
     
-    def set_chess_colors(self, white_color:RGB = RGB.white,black_color:RGB = RGB.black):
+    def set_chess_colors(self, white_color:RGB = RGB.white(),black_color:RGB = RGB.black()):
         flip = True
         for id in range(self.BOARD_HEIGHT *self.BOARD_WIDTH) :
             if(flip):
@@ -170,9 +170,13 @@ class Board:
         if self.arduino is not None:
             
             message = self.generate_led_state()
+            print("\n\n\n")
+            print(message)
+            print("\n")
             self.arduino.write(bytes("set" + message + "\n", 'utf-8'))
             result = str(self.arduino.readline())
-            
+            print(result)
+            print("\n\n\n")
             if(result.find("ok") == -1):
                 raise Exception(result)
             
