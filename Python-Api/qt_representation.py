@@ -93,11 +93,21 @@ class BoardWindow():
         
         
     def turn_on_chess_animation(self):
-        self.board_handle.set_chess_colors()
-        self.update_qui()
-        self.board_handle.display()
-        self.widget.show()
-        
+        for i in range (10):
+            self.board_handle.set_chess_colors(white_color=RGB.black(),black_color=RGB.white())
+            self.update_qui()
+            self.board_handle.display()
+            self.widget.show()
+            time.sleep(1)
+
+            
+            self.board_handle.set_chess_colors(white_color=RGB.white(),black_color=RGB.black())
+            self.update_qui()
+            self.board_handle.display()
+            self.widget.show()
+            time.sleep(1)
+            
+            
     def cycle_color(self,idClicked):
         
         self.__button_states[idClicked] += 1
@@ -122,7 +132,7 @@ def main():
     """
     sync board indefinitely  
     """
-    window = BoardWindow(None)
+    window = BoardWindow("COM3")
         
 
 if __name__ == "__main__":
