@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import serial
 from typing import List, Tuple
 from numpy import uint16, uint32, uint8
+import time
 
 
 @dataclass
@@ -133,20 +134,24 @@ class Board:
     
     def set_chess_colors(self, white_color:RGB = RGB.white(), black_color:RGB = RGB.black()):
         # flip = True
-        
+        # for h in range(self.BOARD_HEIGHT):
+        #     for w in range(self.BOARD_WIDTH):
+        #         if(h%2==0):
+        #             if(w%2==0):
+        #                 self.led_strip[w * 8 + h] = white_color
+        #             else:
+        #                 self.led_strip[w * 8 + h] = black_color
+        #         else:
+        #             if (w%2==1):
+        #                 self.led_strip[w * 8 + h] = white_color
+        #             else:
+        #                 self.led_strip[w * 8 + h] = black_color
+        #
         for h in range(self.BOARD_HEIGHT):
             for w in range(self.BOARD_WIDTH):
-                if(h%2==0):
-                    if(w%2==0):
-                        self.led_strip[w * 8 + h] = white_color
-                    else:
-                        self.led_strip[w * 8 + h] = black_color  
-                else: 
-                    if (w%2==1):
-                        self.led_strip[w * 8 + h] = white_color
-                    else:
-                        self.led_strip[w * 8 + h] = black_color  
-                
+                self.led_strip[w * 8 + h] = white_color
+                time.sleep(1)
+
                 # flip = not flip
     
     def fill_w_color(self,new_collor:RGB)->None:
