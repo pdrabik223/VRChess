@@ -1,6 +1,7 @@
 
 
-from dataclasses import dataclass
+import copy
+from dataclasses import dataclass, field
 import serial
 from typing import List, Tuple
 from numpy import uint16, uint32, uint8
@@ -28,9 +29,11 @@ class RGB:
     @staticmethod
     def black():
         return RGB(r=0,g=0,b=0)
+    
     @staticmethod
     def white():
         return RGB(r = 255,g=255,b=255)
+    
     @staticmethod
     def green():
         return RGB(r=0, g=255, b=0)
@@ -56,12 +59,76 @@ class RGB:
         
         return str_r + str_g + str_b
 
+@dataclass(init=False)
+class BoardLedStripState:
+    BOARD_WIDTH: uint8 = 8
+    BOARD_HEIGHT: uint8 = 8
+    _led_strip: List[RGB] = None
+
+    def __init__(self, size_w=8, size_h=8, color_list=None, default_color=RGB.white()):
+        self.BOARD_WIDTH  = size_h
+        self.BOARD_HEIGHT = size_w
+        
+        if color_list is not None:
+            self._led_strip = color_list
+        else:
+            self._led_strip = []
+            for _ in range(self.BOARD_HEIGHT * self.BOARD_WIDTH):
+                self._led_strip.append(default_color)
+    
+    def _translate_addr(self, w, h) -> int:
+        if w >= self.BOARD_WIDTH or w < 0:
+            raise ValueError("Coordinate out of range: w")
+        if h >= self.BOARD_WIDTH or h < 0:
+            raise ValueError("Coordinate out of range: h")
+        return h * self.BOARD_WIDTH + w
+
+    def set_color(self, w: uint8, h: uint8, color: RGB):
+        self._led_strip[self._translate_addr(w, h)] = color
+        
+    def get_color(self, w: uint8, h: uint8) -> RGB:
+        return self._led_strip[self._translate_addr(w, h)]
+
+    def __getitem__(self, i):
+        if i < self.BOARD_HEIGHT * self.BOARD_WIDTH:
+            return self._led_strip[i]
+        raise StopIteration
+
+@dataclass(init=False)
+class BoardSquareState:
+    BOARD_WIDTH: uint8 = 8
+    BOARD_HEIGHT: uint8 = 8
+    __squares: List[bool] = field(default_factory=list)
+
+    def __init__(self, size_w: uint8=8, size_h: uint8=8, state_list: List[bool]=None, default_state: bool=False):
+        self.BOARD_WIDTH  = size_h
+        self.BOARD_HEIGHT = size_w
+        if state_list is not None:
+            self.__squares = state_list
+        else:
+            for _ in range(self.BOARD_HEIGHT * self.BOARD_WIDTH):
+                self.__squares.append(default_state)
+        
+    
+    def _translate_addr(self, w, h) -> int:
+        if w >= self.BOARD_WIDTH or w < 0:
+            raise ValueError("Coordinate out of range: w")
+        if h >= self.BOARD_WIDTH or h < 0:
+            raise ValueError("Coordinate out of range: h")
+        return h * self.BOARD_WIDTH + w
+
+    def get_state(self, w: uint8, h: uint8) -> bool:
+        return self.__squares[self._translate_addr(w, h)]
+
+
 class Board:
-    BOARD_WIDTH: uint16 = 8
-    BOARD_HEIGHT: uint16 = 8
-    __action_number = 0 
-    __squares: List[bool] = []
-    led_strip: List[RGB] = []
+    
+    # TODO make board fields non static
+    BOARD_WIDTH: uint8 = 8
+    BOARD_HEIGHT: uint8 = 8
+    _action_number = None
+    _squares: List[bool] = None
+    _led_strip: List[RGB] = None
 
     def __init__(self, device: serial.Serial) -> None:
         """
@@ -71,12 +138,13 @@ class Board:
             device (Serial): Serial device used for communication
 
         """
-        
+        self._squares = []
+        self._led_strip = []
         for _ in range(self.BOARD_HEIGHT * self.BOARD_WIDTH):
-            self.led_strip.append(RGB.red())
+            self._led_strip.append(RGB.red())
             
         for _ in range(self.BOARD_HEIGHT * self.BOARD_WIDTH):
-            self.__squares.append(False)
+            self._squares.append(False)
         self.arduino = device
         
         if device == None:
@@ -117,12 +185,12 @@ class Board:
         for x in range(self.BOARD_HEIGHT):
             
             for y in range(self.BOARD_WIDTH):
-                output = " "+ output + str(self.led_strip[self.conv_1_d((x,y))]) + " "
+                output = " "+ output + str(self._led_strip[self.conv_1_d((x,y))]) + " "
             
             output+='\n'
             
             for y in range(self.BOARD_WIDTH):
-                if self.__squares[self.conv_1_d((x,y))]:
+                if self._squares[self.conv_1_d((x,y))]:
                     output = output +"  "+"ON"+"   "
                 else:
                     output = output +"  "+"OFF"+"  "
@@ -138,21 +206,21 @@ class Board:
             for w in range(self.BOARD_WIDTH):
                 if(h%2==0):
                     if(w%2==0):
-                        self.led_strip[w * 8 + h] = white_color
+                        self._led_strip[w * 8 + h] = white_color
                     else:
-                        self.led_strip[w * 8 + h] = black_color
+                        self._led_strip[w * 8 + h] = black_color
                 else:
                     if (w%2==1):
-                        self.led_strip[w * 8 + h] = white_color
+                        self._led_strip[w * 8 + h] = white_color
                     else:
-                        self.led_strip[w * 8 + h] = black_color
+                        self._led_strip[w * 8 + h] = black_color
         
         
     def chess_animation(self,white_color:RGB = RGB.white(), black_color:RGB = RGB.black()):
         for h in range(self.BOARD_HEIGHT):
             for w in range(self.BOARD_WIDTH):
                 
-                self.led_strip[w * 8 + h] = RGB.white()
+                self._led_strip[w * 8 + h] = RGB.white()
                 
                 time.sleep(0.1)
 
@@ -165,8 +233,8 @@ class Board:
         Args:
             new_collor (RGB): color to which every led will be converted 
         """
-        for id, _ in enumerate(self.led_strip):
-            self.led_strip[id] = new_collor
+        for id, _ in enumerate(self._led_strip):
+            self._led_strip[id] = new_collor
 
     def __decode_payload(payload:str)->str:
         # ToDo define errors detected by arduino board and map every with unique flag 
@@ -181,6 +249,22 @@ class Board:
         """
         
         return payload
+    
+    def display_from_board_led_strip_state(self, board_state:BoardLedStripState)->None:
+        assert(type(board_state) == BoardLedStripState)
+        assert(board_state.BOARD_HEIGHT == self.BOARD_HEIGHT)
+        assert(board_state.BOARD_WIDTH == self.BOARD_WIDTH)    
+        assert(len(board_state._led_strip) == len(self._led_strip))
+        
+        update_board = board_state._led_strip != self._led_strip
+        
+        #if board state didn't change do nothing
+        if not update_board:
+            return 
+        
+        self._led_strip = copy.deepcopy(board_state._led_strip)
+        self.display()
+    
     def display(self) -> None:
         """
         Update Arduino chessboard colors with new ones 
@@ -200,7 +284,14 @@ class Board:
             
             
             
-            
+    def get_board_led_strip_state(self)->BoardLedStripState:
+        return BoardLedStripState(size_w = self.BOARD_WIDTH,
+                                  size_h= self.BOARD_HEIGHT,
+                                  color_list=copy.deepcopy(self._led_strip))
+    def get_board_square_state(self)->BoardSquareState:
+        return BoardSquareState(size_w = self.BOARD_WIDTH,
+                                  size_h= self.BOARD_HEIGHT,
+                                  state_list=copy.deepcopy(self._squares))
     def read_voltage(self)->None:
         if self.arduino is not None:
             self.arduino.write(bytes("get\n", 'utf-8'))
@@ -215,7 +306,7 @@ class Board:
     
         print(read_square_states,end='\n')
     
-    def update_board(self) -> None:
+    def read_board(self) -> None:
         """
         Update board with reading from Arduino
         """
@@ -229,13 +320,13 @@ class Board:
             
             parsed_square_states = read_square_states.split(' ')
 
-            self.__action_number = int(read_square_states[-1])
+            self._action_number = int(read_square_states[-1])
 
             for i in range(self.BOARD_HEIGHT*self.BOARD_WIDTH):
                 if parsed_square_states[i] == '1':
-                    self.__squares[i] = True
+                    self._squares[i] = True
                 elif parsed_square_states[i] == '0':
-                    self.__squares[i] = False
+                    self._squares[i] = False
                 else:
                     raise Exception("invalid character :>" +str(parsed_square_states[i])+"<")
     
@@ -247,7 +338,7 @@ class Board:
         Returns:
             uint32: __action_number
         """
-        return self.__action_number
+        return self._action_number
     
     def close_connection(self)->None:
         """
@@ -259,7 +350,7 @@ class Board:
 
     def generate_led_state(self)->str:
         state = ""
-        for led in self.led_strip:
+        for led in self._led_strip:
             state += str(led) + ' '
         return state
     
@@ -275,7 +366,7 @@ class Board:
             Tuple[RGB, bool]: color and occupation of square (in that order) 
         """
         position_1_d = self.conv_1_d(position)
-        return (self.led_strip[position_1_d], self.__squares[position_1_d])
+        return (self._led_strip[position_1_d], self._squares[position_1_d])
 
     def __setitem__(self, position: Tuple[uint8, uint8], color: RGB) -> None:
         """settor for specied square color 
@@ -285,7 +376,7 @@ class Board:
             color (RGB): new collor of square
         """
         position_1_d = self.conv_1_d(position)
-        self.led_strip[position_1_d] = color
+        self._led_strip[position_1_d] = color
 
     
     def conv_1_d(self, position_2_d: Tuple[uint8, uint8]) -> uint16:
