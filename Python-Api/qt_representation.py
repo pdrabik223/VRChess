@@ -18,7 +18,6 @@ class BoardWindow():
     _button_states = []
     _device_process = ProcessHandler(DeviceWorker(None))
     _reverse_process = ProcessHandler(ReverseWorker())
-    _proc_killer_proces = ProcessHandler(ProcKiller())
     
     def __init__(self) -> None:
         self.app = QApplication(sys.argv)
@@ -30,11 +29,8 @@ class BoardWindow():
         self.widget.setStyleSheet("background-color : black")
         self.widget.setWindowTitle("Board")
         
-        self._proc_killer_proces.set(1)
-
         self._device_process.start()
         self._reverse_process.start()
-        self._proc_killer_proces.start()
         
         self.timer = QTimer()
         self.timer.timeout.connect(self.on_update)
@@ -70,7 +66,10 @@ class BoardWindow():
         if colors != None:
             self.update_qui_colors(colors)
             
-            
+    def close(self):
+        self._device_process.close()
+        self._reverse_process.close()
+        
     def rainbow(self, p , max):
         
         third = p // (max // 3)
@@ -145,15 +144,18 @@ class BoardWindow():
         
         logging.debug(f"update_qui_colors: {self.layoutGrid.itemAt(0).widget()}")
         self.widget.update()
-        
+      
 def main():
     """
     sync board indefinitely  
     """
     logging.basicConfig(level=logging.DEBUG)
     logging.debug("heellooo")
-    window = BoardWindow()
-        
+    try:
+        window = BoardWindow()
+    except KeyboardInterrupt:
+        window.close()
+        del window
 
 if __name__ == "__main__":
     main()

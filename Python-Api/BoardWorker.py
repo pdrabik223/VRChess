@@ -1,11 +1,13 @@
+from asyncio.log import logger
 from itertools import count
 from typing import Any, Optional
 from abc import ABC, abstractmethod
 import time
 import logging
+from multiprocessing.sharedctypes import Value
 
 from Board import Board, BoardLedStripState
-from multiprocessing import Process, Queue, Value
+from multiprocessing import Process, Queue
 from dataclasses import dataclass
 
 from Board import *
@@ -62,10 +64,11 @@ class ReverseWorker(IWorker):
         return out
 
     def close(self):
+        logging.debug("c@")
         pass
     
-    # def __del__(self):
-    #     pass
+    def __del__(self):
+        pass
 
 @dataclass(init=False)
 class ProcKiller(IWorker):
@@ -77,16 +80,18 @@ class ProcKiller(IWorker):
         return 1
     
     def close(self):
+        logging.debug("c@ ")
         pass
     
     
 def f(inputs: Queue, outputs: Queue, worker: IWorker, should_close):
-    while should_close[1] != 1:
+    while should_close.value != 1:
         if not inputs.empty():
             logging.debug("Input recived")
             outputs.put_nowait(worker.update_state(inputs.get_nowait()))
         time.sleep(1/60)
-
+    worker.close()
+    
 @dataclass(init=False)
 class ProcessHandler:
     _worker: IWorker
@@ -97,7 +102,7 @@ class ProcessHandler:
     def __init__(self, worker: IWorker) -> None:
         self._inputs = Queue()
         self._outputs = Queue()
-        self._should_close = ('i', 0)
+        self._should_close = Value('i', 0)
         self._worker = worker
         self._process = Process(target=f, args=(self._inputs, 
                                                  self._outputs, 
@@ -121,9 +126,11 @@ class ProcessHandler:
         self._process.start()
 
     def close(self):
-        pass
+        self._should_close.value = 1
+
         # self._process.close()
-        # # self._process.kill
+        # self._process.kill
         # self._process.terminate()
-    # def __del__(self):
-    #     self.close()
+        
+    def __del__(self):
+        self.close()
