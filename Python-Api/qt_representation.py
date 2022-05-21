@@ -7,7 +7,7 @@ from PyQt5.QtCore import *
 from typing import List 
 from PyQt5.QtCore import *
 
-from BoardWorker import DeviceWorker, ReverseWorker, ProcessHandler
+from BoardWorker import *
 
 from Board import *
 
@@ -18,27 +18,29 @@ class BoardWindow():
     _button_states = []
     _device_process = ProcessHandler(DeviceWorker(None))
     _reverse_process = ProcessHandler(ReverseWorker())
+    _proc_killer_proces = ProcessHandler(ProcKiller())
     
     def __init__(self) -> None:
         self.app = QApplication(sys.argv)
         self.widget = QWidget()
         self.layoutGrid = QGridLayout()
-
         self.buttonGroup = QButtonGroup()
 
         self.widget.setGeometry(80, 80,2+8*82,2+8*82)
         self.widget.setStyleSheet("background-color : black")
         self.widget.setWindowTitle("Board")
         
-        
+        self._proc_killer_proces.set(1)
 
         self._device_process.start()
         self._reverse_process.start()
+        self._proc_killer_proces.start()
         
         self.timer = QTimer()
         self.timer.timeout.connect(self.on_update)
         self.timer.setInterval(500) #.5 seconds
         self.timer.start()
+        
         
         self.buttonGroup.idClicked.connect(self.cycle_color)
         self.widget.setLayout(self.layoutGrid)
@@ -47,13 +49,13 @@ class BoardWindow():
             for y in range(BOARD_WIDTH):
                 button = QPushButton()
                 button.setStyleSheet("background-color: red")
-                button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)                
+                button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                 self.layoutGrid.addWidget(button, x,y)
                 self.buttonGroup.addButton(button, x*BOARD_WIDTH+y)
                 self._button_states.append(0)
                 
         self.widget.show()
-        self.app.exec()         
+        self.app.exec()
 
     def on_update(self):
         logging.debug("Updating")

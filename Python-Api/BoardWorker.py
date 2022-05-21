@@ -1,3 +1,4 @@
+from itertools import count
 from typing import Any, Optional
 from abc import ABC, abstractmethod
 import time
@@ -66,13 +67,25 @@ class ReverseWorker(IWorker):
     # def __del__(self):
     #     pass
 
+@dataclass(init=False)
+class ProcKiller(IWorker):
+    count = 0
+    def update_state(self, state):
+        while True:
+                self.count+=1
+                # print(self.count)
+        return 1
+    
+    def close(self):
+        pass
+    
+    
 def f(inputs: Queue, outputs: Queue, worker: IWorker, should_close):
     while should_close[1] != 1:
         if not inputs.empty():
             logging.debug("Input recived")
             outputs.put_nowait(worker.update_state(inputs.get_nowait()))
         time.sleep(1/60)
-
 
 @dataclass(init=False)
 class ProcessHandler:
