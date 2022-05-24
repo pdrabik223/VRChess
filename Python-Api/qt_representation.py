@@ -1,3 +1,4 @@
+import logging
 import math
 import sys
 import time
@@ -6,55 +7,68 @@ from PyQt5.QtCore import *
 from typing import List 
 from PyQt5.QtCore import *
 
-from Board import Board, RGB
+from BoardWorker import *
+
+from Board import *
 
 BOARD_HEIGHT = 8
 BOARD_WIDTH = 8
 
 class BoardWindow():
-    __buttons:QPushButton = [] 
-    __button_states = []
+    _button_states = []
+    _device_process = ProcessHandler(DeviceWorker(None))
+    _reverse_process = ProcessHandler(ReverseWorker())
     
-    def __init__(self,device) -> None:
+    def __init__(self) -> None:
         self.app = QApplication(sys.argv)
         self.widget = QWidget()
-        self.widget.setGeometry(80, 80,2+9*82,2+8*82)
+        self.layoutGrid = QGridLayout()
+        self.buttonGroup = QButtonGroup()
+
+        self.widget.setGeometry(80, 80,2+8*82,2+8*82)
         self.widget.setStyleSheet("background-color : black")
         self.widget.setWindowTitle("Board")
-        if(device == None):
-            self.board_handle = Board(None)
-        else:    
-            self.board_handle = Board.connect_on_port(device)
-        self.buttonGroup = QButtonGroup()
+        
+        self._device_process.start()
+        self._reverse_process.start()
+        
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.on_update)
+        self.timer.setInterval(500) #.5 seconds
+        self.timer.start()
+        
+        
         self.buttonGroup.idClicked.connect(self.cycle_color)
+        self.widget.setLayout(self.layoutGrid)
         
         for x in range(BOARD_HEIGHT):
             for y in range(BOARD_WIDTH):
-                self.__buttons.append(QPushButton(self.widget))
-                self.__buttons[-1].setGeometry(2 + x * 82 ,2 + y * 82, 80, 80)
-                self.__buttons[-1].setStyleSheet(f"background-color : red")
-                self.buttonGroup.addButton(self.__buttons[-1],x*BOARD_WIDTH+y)
-                self.board_handle[(x,y)] = RGB.red()
-                self.__button_states.append(0)
+                button = QPushButton()
+                button.setStyleSheet("background-color: red")
+                button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+                self.layoutGrid.addWidget(button, x,y)
+                self.buttonGroup.addButton(button, x*BOARD_WIDTH+y)
+                self._button_states.append(0)
                 
-                
-        self.chess_colors = QPushButton(self.widget)
-        self.chess_colors.setGeometry(2 + 8 * 82 ,0, 80, 80)
-        self.chess_colors.setStyleSheet(f"background-color : gray")
-        self.chess_colors.setText("chess grid")
-        self.chess_colors.clicked.connect(self.turn_on_chess)
-  
-        self.chess_colors = QPushButton(self.widget)
-        self.chess_colors.setGeometry(2 + 8 * 82 ,1 * 82, 80, 80)
-        self.chess_colors.setStyleSheet(f"background-color : gray")
-        self.chess_colors.setText("chess grid animation")
-        self.chess_colors.clicked.connect(self.turn_on_chess_animation)
-  
-        
-        self.board_handle.display()
         self.widget.show()
-        self.app.exec()         
+        self.app.exec()
 
+    def on_update(self):
+        logging.debug("Updating")
+        active_fields = self._device_process.update(BoardLedStripState(default_color=RGB.blue))
+        logging.debug(f"Active fields: {active_fields}")
+        
+        if active_fields == None:
+            return
+        
+        colors = self._reverse_process.update(active_fields)
+
+        if colors != None:
+            self.update_qui_colors(colors)
+            
+    def close(self):
+        self._device_process.close()
+        self._reverse_process.close()
         
     def rainbow(self, p , max):
         
@@ -85,55 +99,63 @@ class BoardWindow():
                     math.cos(height_in_radians) * 255)
 
 
-    def turn_on_chess(self):
-        self.board_handle.set_chess_colors()
-        self.update_qui()
-        self.board_handle.display()
-        self.widget.show()
+    # def turn_on_chess(self):
+    #     self.board_handle.set_chess_colors()
+    #     self.update_qui()
+    #     self.board_handle.display()
+    #     self.widget.show()
         
         
-    def turn_on_chess_animation(self):
-        for i in range (10):
-            self.board_handle.set_chess_colors(white_color=RGB.black(),black_color=RGB.white())
-            self.update_qui()
-            self.board_handle.display()
-            self.widget.show()
-            time.sleep(1)
+    # def turn_on_chess_animation(self):
+    #     for i in range (10):
+    #         self.board_handle.set_chess_colors(white_color=RGB.black(),black_color=RGB.white())
+    #         self.update_qui()
+    #         self.board_handle.display()
+    #         self.widget.show()
+    #         time.sleep(1)
 
             
-            self.board_handle.set_chess_colors(white_color=RGB.white(),black_color=RGB.black())
-            self.update_qui()
-            self.board_handle.display()
-            self.widget.show()
-            time.sleep(1)
+    #         self.board_handle.set_chess_colors(white_color=RGB.white(),black_color=RGB.black())
+    #         self.update_qui()
+    #         self.board_handle.display()
+    #         self.widget.show()
+    #         time.sleep(1)
             
             
     def cycle_color(self,idClicked):
+        return
+        self._button_states[idClicked] += 1
         
-        self.__button_states[idClicked] += 1
+        if self._button_states[idClicked] == 12:
+            self._button_states[idClicked] = 0
         
-        if self.__button_states[idClicked] == 12:
-            self.__button_states[idClicked] = 0
-        
-        color =  self.rainbow( self.__button_states[idClicked],12)
-        self.board_handle.led_strip[idClicked] = RGB(round(color[0]), round(color[1]), round(color[2]))
-        color = self.board_handle.led_strip[idClicked]
+        color =  self.rainbow( self._button_states[idClicked],12)
+        self.board_handle._led_strip[idClicked] = RGB(round(color[0]), round(color[1]), round(color[2]))
+        color = self.board_handle._led_strip[idClicked]
         print(str(color))
-        self.__buttons[idClicked].setStyleSheet(f"background-color : rgb({color.r},{color.g},{color.b})")
+        self._buttons[idClicked].setStyleSheet(f"background-color : rgb({color.r},{color.g},{color.b})")
         self.board_handle.display()
         self.widget.show()
         
-    def update_qui(self):
-        for i in range(BOARD_HEIGHT * BOARD_WIDTH):
-            color = self.board_handle.led_strip[i]
-            self.__buttons[i].setStyleSheet(f"background-color : rgb({color.r},{color.g},{color.b})")
-
+    def update_qui_colors(self,board_led_strip_state : BoardLedStripState):
+        for index in range(self.layoutGrid.count()):
+            color = board_led_strip_state._led_strip[index]
+            self.layoutGrid.itemAt(index).widget().setStyleSheet(f"background-color : rgb({color.r},{color.g},{color.b})")
+        
+        logging.debug(f"update_qui_colors: {self.layoutGrid.itemAt(0).widget()}")
+        self.widget.update()
+      
 def main():
     """
     sync board indefinitely  
     """
-    window = BoardWindow("COM3")
-        
+    logging.basicConfig(level=logging.DEBUG)
+    logging.debug("heellooo")
+    try:
+        window = BoardWindow()
+    except KeyboardInterrupt:
+        window.close()
+        del window
 
 if __name__ == "__main__":
     main()
