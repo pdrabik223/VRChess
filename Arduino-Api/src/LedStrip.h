@@ -1,4 +1,10 @@
+//// Wrapper over FastLED library, simplifies usage and hides
+
 #include <FastLED.h>
+#include <stdint.h> /// for special uint tyoes like uint32_t
+
+#ifndef LED_STRIP_H
+#define LED_STRIP_H
 
 template <uint8_t PIN>
 class LedStrip
@@ -31,13 +37,14 @@ public:
     {
         leds[position] = color;
     }
+
     /// [] operator, gives direct acces to specified led
     /// @param position id of adressed led
     /// @returns direct acces to led under the given position
-    CRGB &operator[](uint32_t position)
+    CRGB &operator[](const uint32_t position)
     {
-        if (position < this->Size())
-            return leds[position]
+        assert(position < Size());
+        return leds[position];
     }
     /// forces led strip to update it's colors
     void Update()
@@ -56,9 +63,9 @@ public:
     {
         Fill(CRGB::Black);
     }
-    /// @return number of individually adressed leds
-    ///     stv library in every list-like class,
-    ///     uses "size" function to acces length of list,
+    /// @return number of individually adressed leds,
+    ///     in std library every list-like class,
+    ///     uses "size" function to acces length of list
     uint32_t Size() { return GetNoLeds(); }
     /// @return led strip connector pin
     uint8_t GetPin() { return pin; }
@@ -68,13 +75,24 @@ public:
 
     /// setter for noumber of addressed leds
     /// @param no_leds new noumber of leds
-    /// @note no_leds does not need to match length of physical led strip 
+    /// @note no_leds does not need to match length of physical led strip
     void SetNoLeds(uint32_t no_leds)
     {
         delete[] leds;
         this->no_leds = no_leds;
         leds = new CRGB[no_leds];
         FastLED.addLeds<NEOPIXEL, PIN>(leds, no_leds); // GRB ordering is assumed
+    }
+
+    void TurnRainbowOnAnimation(uint32_t animation_speed)
+    {
+        Clear();
+        for (uint32_t j = 0; j < Size(); j++)
+        {
+            Set(j, Rainbow(j, Size() + 1));
+            Update();
+            delay(animation_speed);
+        }
     }
 };
 /// calculates color present in id point on the rainbow scale <0 to max_id>
@@ -84,3 +102,5 @@ CRGB Rainbow(unsigned id, unsigned max_id);
 bool IsEqual(const CRGB &color_a, const CRGB &color_b);
 
 // CRGB FromBase16(const string &color)
+
+#endif
