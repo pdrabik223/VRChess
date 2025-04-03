@@ -1,3 +1,6 @@
+# [Bambulad bid it better](https://concept-bytes.com/products/openchess-pcb?variant=50601021833517)
+
+
 # VRChess
 Smart chess board, enables 2-way communication with chess player via physical chess board.
 Chess board, just like pieces are 3d printed, player action detection mechanism is made on a budget using cheep and easily bought components. 
